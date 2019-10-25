@@ -1,0 +1,10 @@
+Flask
+h5py
+keras
+keras_bert
+numpy
+pymorphy2
+scikit-learn
+scipy
+smart_open > 1.8.1
+tensorflow > 1.10

@@ -15,6 +15,16 @@
 				text-align: center;
 				width: 100%;
 			}
+			.failed_search {
+				background: #ff00ff;
+				display: inline-block;
+				font-size: 48px;
+				font-weight: bold;
+				margin-top: 20px;
+				padding: 20px;
+				text-align: center;
+				width: 100%;
+			}
 			input, select {
 				border: 3px solid #F9F0DA;
 				border-radius: 42px;
@@ -115,6 +125,11 @@
 				</tr>
 				{% endfor %}
 			</table>
+		</div>
+		{% endif %}
+		{% if failed_search %}
+		<div class="failed_search" align="center">
+			<p>Nothing was found!</p>
 		</div>
 		{% endif %}
 -->

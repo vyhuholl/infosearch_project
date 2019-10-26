@@ -1,0 +1,122 @@
+<DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="style.css">
+		<title>Quora Questions Search Engine</title>
+		<style>
+			.search {
+				background: #ff00ff;
+				display: inline-block;
+				font-size: 22px;
+				margin-top: 20px;
+				padding: 20px;
+				text-align: center;
+				width: 100%;
+			}
+			input, select {
+				border: 3px solid #F9F0DA;
+				border-radius: 42px;
+				font-size: 22px;
+				height: 42px;
+				margin: 15px;
+				outline: none;
+				padding: 5px;
+				width: 25%;
+			}
+			input:hover, input:focus, select:hover, select:focus {
+				border-color: #311c24;
+			}
+			input[type="text"]:hover, input[type="text"]:focus {
+				width: 50%;
+			}
+			input[type="submit"]
+			{
+				background: #311c24;
+				color: #ff00ff;
+				font-weight: bold;
+				width: 120px;
+			}
+			input[type="submit"]:hover, input[type="submit"]:focus {
+				background-color: #ff99ff;
+				box-shadow: 0px 0px 20px rgba(0, 0, 0, #6666ff);
+				color: #660066;
+			}
+			select {
+				color: #660066;
+				width: 120px;
+			}
+			select:hover, select:focus {
+				box-shadow: 0px 0px 20px rgba(0, 0, 0, #6666ff);
+				color: #ff99ff;
+			}
+			table {
+				font-size: 22px;
+				text-align: left;
+				width: 80%;
+			}
+			caption {
+				font-size: 24px;
+				margin-bottom: 20px;
+			}
+			td {
+				border: 3px solid #F9F0DA;
+				border-radius: 42px;
+				padding: 10px;
+				padding-right: 20px;
+			}
+			th {
+				padding: 20px;
+			}
+			.row_odd {
+				background-color: #660033;
+				color: #9966ff;
+			}
+			.row_even {
+				background-color: #9966ff;
+				color: 660033;
+			}
+			.row_odd:hover, .row_odd:focus, .row_even:hover, .row_even:focus {
+				background-color: #ccccff;
+			}
+		</style>
+	<head>
+	<body>
+		<h1>Quora Questions Search Engine</h1>
+		<div class="search">
+			<p>Please, select the search model.</p>
+			<form method="get" action="">
+				<input type="text" name="query" id="query"/>
+				<select name="model", id="select">
+					<option id="tf-idf" value="tf-idf">TF-IDF</option>
+					<option id="bm25" value="bm25">BM25</option>
+					<option id="word2vec" value="word2vec">Word2Vec</option>
+					<option id="fasttext" value="fasttext">FastText</option>
+					<option id="elmo" value="elmo">ELMO</option>
+					<option id="bert" value="bert">RuBERT</option>
+				</select>
+				<input type="submit", value="Search!"/>
+			</form>
+		</div>
+<!--
+		{% if results %}
+		<div>
+			<table>
+				<caption>Results:</caption>
+				<tr>
+					<th style="width: 80%">Text</th>
+					<th style="width: 20%">Rank</th>
+				</tr>
+				{% for result in results %}
+				<tr class="row_{{ forloop.counter0|divisibleby:2|yesno:'even,odd' }}">
+					<td>{{ result.0 }}</td>
+					<td>{{ result.1 }}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% endif %}
+-->
+	<body>
+</html>

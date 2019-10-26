@@ -260,7 +260,7 @@ class FastTextSearch(SearchEngine):
 
 class ELMOSearch(SearchEngine):
     def __init__:
-        super(FastTextSearch, self).__init__()
+        super(ELMOSearch, self).__init__()
         self.data = self.load_data()
         self.batcher, self.ids, self.input = self.load_model()
         if not path.isfile("elmo_matrix.npy"):
@@ -292,9 +292,60 @@ class ELMOSearch(SearchEngine):
                                              sess, self.data[i:i + 75],
                                              self.batcher, self.ids,
                                              self.input), axis=1)))
+        np.save("elmo_matrix.npy", self.matrix)
 
     def search(self, query):
         result = np.matmul(self.matrix, self.transform(lemmatize(query)))
+        indices = np.argsort(result)[::-1].tolist()[:10]
+        best_match = []
+        conn = connection
+        db = conn.cursor()
+        for index in indices:
+            text = db.execute(f"""SELECT text from text_corpora
+                                 WHERE id=%d""", (index,))
+            best_match.append((text, result[index]))
+        db.close()
+        return best_match
+
+
+class RuBERTSearch(SearchEngine):
+    def __init__:
+        super(RuBERTSearch, self).__init__()
+        self.data = self.load_data()
+        self.model, self.vocab, self.tokenizer = self.load_model()
+        if not path.isfile("bert_matrix.npy"):
+            self.fit_transform()
+        else:
+            self.matrix = self.load_matrix("bert_matrix.npy")
+
+    def load_model(self):
+        tf.reset_default_graph()
+        paths = get_checkpoint_paths(path.join("..", "model_bert"))
+        inputs = load_trained_model_from_checkpoint(
+            config_file=paths.config,
+            checkpoint_file=paths.checkpoint, seq_len=50)
+        outputs = MaskedGlobalMaxPool1D(name="Pooling")(inputs.output)
+        vocab = load_vocabulary(paths.vocab)
+        return Model(inputs=inputs.inputs,
+                     outputs=outputs), vocab, Tokenizer(vocab)
+
+    def fit_transform(self):
+        self.matrix = np.zeros((100000, 768))
+        segments = np.array([[0 for i in range(50)]])
+        for index, text in enumerate(self.data):
+            tokens = self.tokenizer.tokenize(" ".join(text))[:50]
+            idxs = np.array([[self.vocab[token] for token in tokens]
+                             + [0 for i in range(50 - len(tokens))]])
+            self.matrix[index] = self.model.predict([idxs, segments])[0]
+        np.save("bert_matrix.npy", self.matrix)
+
+    def search(self, query):
+        segments = np.array([[0 for i in range(50)]])
+        tokens = self.tokenizer.tokenize(" ".join(lemmatize(query)))[:50]
+        idxs = np.array([[self.vocab[token] for token in tokens]
+                         + [0 for i in range(50 - len(tokens))]])
+        query_vec = self.model.predict([idxs, segments])[0]
+        result = np.matmul(self.matrix, query_vec)
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []
         conn = connection

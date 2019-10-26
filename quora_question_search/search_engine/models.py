@@ -6,5 +6,5 @@ class TextCorpora(models.Model):
     text_lemmatized = models.TextField()
 
     class Meta:
-        db_table = "quora_question_pairs_rus"
+        db_table = "text_corpora"
         managed = False

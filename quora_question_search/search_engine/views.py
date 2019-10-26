@@ -1,9 +1,11 @@
+import os
 import sys
 import logging
 import sqlite3
 import pandas as pd
 import numpy as np
 import tensorflow.compat.v1 as tf
+from tqdm import tqdm
 from collections import defaultdict
 from django.db import connection
 from django.shortcuts import render
@@ -20,6 +22,43 @@ from keras.models import Model
 from keras_bert.layers import MaskedGlobalMaxPool1D
 from keras_bert import load_trained_model_from_checkpoint
 from keras_bert import Tokenizer, load_locabulary, get_checkpoint_paths
+
+filterwarnings("ignore")
+tf.disable_v2_behavior()
+tf.reset_default_graph()
+
+m = MorphAnalyzer()
+
+
+def lemmatize(text):
+    return [m.parse(word)[0].normal_form
+            for word in simple_word_tokenize(text)]
+
+
+def build_db():
+    df = pd.read_csv(os.path.join("..", "quora_question_pairs_rus.csv"))
+    corpus = list(set(df["question1"])) + list(set(df["question2"]))
+    conn = sqlite3.connect("quora_question_pairs_rus.db")
+    db = conn.cursor()
+    db.execute("""
+              CREATE TABLE text_corpora
+              (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+              text TEXT NOT NULL,
+              text_lemmatized TEXT NOT NULL);
+              """)
+    for text in tqdm(corpus):
+        db.execute("""
+                   INSERT INTO text_corpora
+                   (text, text_lemmatized)
+                   VALUES (?, ?);
+                   """, (text, " ".join(lemmatize(text))))
+        conn.commit()
+    conn.close()
+    return
+
+
+if not os.path.isfile("quora_question_pairs_rus.db"):
+    build_db()
 
 
 def main(request):

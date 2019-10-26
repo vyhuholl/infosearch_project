@@ -8,3 +8,4 @@ scikit-learn
 scipy
 smart_open > 1.8.1
 tensorflow > 1.10
+tqdm

@@ -1,12 +1,12 @@
 import os
 import sys
+import pickle
 import logging
 import sqlite3
 import pandas as pd
 import numpy as np
 import tensorflow.compat.v1 as tf
 from tqdm import tqdm
-from collections import defaultdict
 from django.db import connection
 from django.shortcuts import render
 from scipy.sparse import csr_matrix
@@ -74,11 +74,11 @@ class SearchEngine():
                    """)
         data = db.fetchall()
         conn.close()
-        return [text[0] for text in data]
+        return np.array([text[0] for text in data])
 
     @staticmethod
     def load_matrix(filename):
-        return np.load(filename)
+        return np.load(filename, allow_pickle=True)
 
     def load_model(self):
         pass
@@ -94,6 +94,44 @@ class SearchEngine():
 
     def search(self, query):
         pass
+
+
+class TfIdfSearch(SearchEngine):
+    def __init__(self):
+        super(SearchEngine, self).__init__()
+        self.data = self.load_data()
+        self.vectorizer = CountVectorizer(tokenizer=lemmatize)
+        if not os.path.isfile("tfidf_matrix.npy"):
+            self.fit_transform()
+        else:
+            self.matrix = self.load_matrix("tfidf_matrix.py")
+
+    def fit_transform(self):
+        TF = self.vectorizer.fit_transform(self.texts)
+        IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
+                        for y in TF.nonzero()[0]])
+        TF_IDF = np.matmul(TF.transpose(), IDF)
+        self.matrix = csr_matrix((TF_IDF, TF.indices, TF.indptr),
+                                 shape=TF.shape)
+        self.matrix = self.matrix.transpose(copy=True)
+        np.save("tfidf_matrix.npy", self.matrix)
+
+    def transform(self, texts):
+        return self.vectorizer.transform(texts)
+
+    def search(self, query):
+        query_vec = self.transform([query])
+        result = np.array((query_vec * self.matrix).todense())[0]
+        indices = np.argsort(result)[::-1].tolist()[:10]
+        best_match = []
+        conn = connection
+        db = conn.cursor()
+        for index in indices:
+            text = db.execute(f"""SELECT text from text_corpora
+                                 WHERE id=%d""", (index,))
+            best_match.append((text, result[index]))
+        db.close()
+        return best_match
 
 
 def main(request):

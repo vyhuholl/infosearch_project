@@ -4,3 +4,4 @@ __pycache__/
 quora_question_search/quora_question_pairs_rus.csv
 
 quora_question_search/search_engine/quora_question_pairs_rus.db
+quora_question_search/search_engine/tfidf_matrix.npy

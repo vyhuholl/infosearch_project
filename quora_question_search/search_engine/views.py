@@ -61,6 +61,41 @@ if not os.path.isfile("quora_question_pairs_rus.db"):
     build_db()
 
 
+class SearchEngine():
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def load_data():
+        conn = connection
+        db = conn.cursor()
+        db.execute("""
+                   SELECT text_lemmatized FROM text_corpora LIMIT 100000
+                   """)
+        data = db.fetchall()
+        conn.close()
+        return [text[0] for text in data]
+
+    @staticmethod
+    def load_matrix(filename):
+        return np.load(filename)
+
+    def load_model(self):
+        pass
+
+    def fit(self):
+        pass
+
+    def transform(self, texts):
+        pass
+
+    def fit_transform(self, texts):
+        pass
+
+    def search(self, query):
+        pass
+
+
 def main(request):
     query = request.GET["query"]
     model = request.GET["model"]

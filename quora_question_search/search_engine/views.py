@@ -134,6 +134,44 @@ class TfIdfSearch(SearchEngine):
         return best_match
 
 
+class BM25Search(SearchEngine):  # b=0, k=2
+    def __init__(self):
+        super(SearchEngine, self).__init__()
+        self.data = self.load_data()
+        self.vectorizer = CountVectorizer(tokenizer=lemmatize)
+        if not os.path.isfile("bm25_matrix.npy"):
+            self.fit_transform()
+        else:
+            self.matrix = self.load_matrix("bm25_matrix.npy")
+
+    def fit_transform(self):
+        TF = self.vectorizer.fit_transform(self.texts)
+        IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
+                        for y in TF.nonzero()[0]])
+        BM25 = IDF * TF.data * 3 / (TF.data + 3)
+        self.matrix = csr_matrix((BM25, TF.indices, TF.indptr),
+                                 shape=TF.shape)
+        self.matrix = self.matrix.transpose(copy=True)
+        np.save("bm25_matrix.npy", self.matrix)
+
+    def transform(self, texts):
+        return self.vectorizer.transform(texts)
+
+    def search(self, query):
+        query_vec = self.transform([query])
+        result = np.array((query_vec * self.matrix).todense())[0]
+        indices = np.argsort(result)[::-1].tolist()[:10]
+        best_match = []
+        conn = connection
+        db = conn.cursor()
+        for index in indices:
+            text = db.execute(f"""SELECT text from text_corpora
+                                 WHERE id=%d""", (index,))
+            best_match.append((text, result[index]))
+        db.close()
+        return best_match
+
+
 def main(request):
     query = request.GET["query"]
     model = request.GET["model"]

@@ -24,7 +24,6 @@ from gensim.models.keyedvectors import KeyedVectors, Word2VecKeyedVectors
 
 filterwarnings("ignore")
 tf.disable_v2_behavior()
-tf.reset_default_graph()
 
 m = MorphAnalyzer()
 
@@ -94,7 +93,7 @@ class SearchEngine():
 
 class TfIdfSearch(SearchEngine):
     def __init__(self):
-        super(SearchEngine, self).__init__()
+        super(TfIdfSearch, self).__init__()
         self.data = self.load_data()
         self.vectorizer = CountVectorizer(tokenizer=lemmatize)
         if not path.isfile("tfidf_matrix.npy"):
@@ -132,7 +131,7 @@ class TfIdfSearch(SearchEngine):
 
 class BM25Search(SearchEngine):  # b=0, k=2
     def __init__(self):
-        super(SearchEngine, self).__init__()
+        super(BM25Search, self).__init__()
         self.data = self.load_data()
         self.vectorizer = CountVectorizer(tokenizer=lemmatize)
         if not path.isfile("bm25_matrix.npy"):
@@ -170,7 +169,7 @@ class BM25Search(SearchEngine):  # b=0, k=2
 
 class Word2VecSearch(SearchEngine):
     def __init__(self):
-        super(SearchEngine, self).__init__()
+        super(Word2VecSearch, self).__init__()
         self.data = self.load_data()
         self.model = self.load_model()
         if not path.isfile("word2vec_matrix.npy"):
@@ -215,7 +214,7 @@ class Word2VecSearch(SearchEngine):
 
 class FastTextSearch(SearchEngine):
     def __init__(self):
-        super(SearchEngine, self).__init__()
+        super(FastTextSearch, self).__init__()
         self.data = self.load_data()
         self.model = self.load_model()
         if not path.isfile("fasttext_matrix.npy"):
@@ -258,6 +257,54 @@ class FastTextSearch(SearchEngine):
         db.close()
         return best_match
 
+
+class ELMOSearch(SearchEngine):
+    def __init__:
+        super(FastTextSearch, self).__init__()
+        self.data = self.load_data()
+        self.batcher, self.ids, self.input = self.load_model()
+        if not path.isfile("elmo_matrix.npy"):
+            self.fit_transform()
+        else:
+            self.matrix = self.load_matrix("elmo_matrix.npy")
+
+    def load_model(self):
+        tf.reset_default_graph()
+        return load_elmo_embeddings(path.join("..", "model_elmo"))
+
+    def transform(self, text):
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
+            text_vec = np.transpose(np.mean(get_elmo_vectors(sess, [text],
+                                                             self.batcher,
+                                                             self.ids,
+                                                             self.input
+                                                             ))).flatten()
+        return text_vec
+
+    def fit_transform(self):
+        self.matrix = np.zeros((0, 1024))
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer)
+            for i in tqdm(range(0, 100000, 75)):
+                self.matrix = np.vstack((self.matrix,
+                                         np.mean(get_elmo_vectors(
+                                             sess, self.data[i:i + 75],
+                                             self.batcher, self.ids,
+                                             self.input), axis=1)))
+
+    def search(self, query):
+        result = np.matmul(self.matrix, self.transform(lemmatize(query)))
+        indices = np.argsort(result)[::-1].tolist()[:10]
+        best_match = []
+        conn = connection
+        db = conn.cursor()
+        for index in indices:
+            text = db.execute(f"""SELECT text from text_corpora
+                                 WHERE id=%d""", (index,))
+            best_match.append((text, result[index]))
+        db.close()
+        return best_match
 
 
 def main(request):

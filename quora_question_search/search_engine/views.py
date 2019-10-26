@@ -259,6 +259,7 @@ class FastTextSearch(SearchEngine):
         return best_match
 
 
+
 def main(request):
     query = request.GET["query"]
     model = request.GET["model"]

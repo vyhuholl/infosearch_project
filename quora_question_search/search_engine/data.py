@@ -1,9 +1,9 @@
 # originally based on https://github.com/tensorflow/models/tree/master/lm_1b
 import glob
 import random
-from smart_open import open
 import numpy as np
 from typing import List
+from smart_open import open
 
 
 class Vocabulary(object):

@@ -1,12 +1,12 @@
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-import logging
-logging.getLogger("tensorflow").setLevel(logging.FATAL)
-import tensorflow.compat.v1 as tf
 from warnings import filterwarnings
-
 filterwarnings("ignore")
-
+import logging
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
+import tensorflow.compat.v1 as tf
+tf.get_logger().setLevel(logging.ERROR)
+tf.autograph.set_verbosity(3)
 tf.disable_v2_behavior()
 
 

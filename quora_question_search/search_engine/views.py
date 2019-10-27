@@ -1,12 +1,18 @@
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+from warnings import filterwarnings
+filterwarnings("ignore")
 import logging
-logging.getLogger("tensorflow").setLevel(logging.FATAL)
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
+import tensorflow.compat.v1 as tf
+tf.get_logger().setLevel(logging.ERROR)
+tf.autograph.set_verbosity(3)
+tf.disable_v2_behavior()
+
 import sys
 import sqlite3
 import pandas as pd
 import numpy as np
-import tensorflow.compat.v1 as tf
 from os import path
 from tqdm import tqdm
 from django.db import connection
@@ -22,10 +28,6 @@ from keras_bert.layers import MaskedGlobalMaxPool1D
 from keras_bert import load_trained_model_from_checkpoint
 from keras_bert import Tokenizer, load_vocabulary, get_checkpoint_paths
 from gensim.models.keyedvectors import KeyedVectors, Word2VecKeyedVectors
-
-filterwarnings("ignore")
-
-tf.disable_v2_behavior()
 
 main_logger = logging.getLogger()
 main_logger.setLevel(logging.DEBUG)

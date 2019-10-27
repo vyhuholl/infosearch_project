@@ -8,4 +8,4 @@ Final project for this course: https://github.com/hse-infosearch/infosearch. A s
 * **ELMO**
 * **BERT**
 <br>
-To run the search, first download the [archive with pre-trained models](https://www.dropbox.com/s/wxijsqqwrx71q32/Pre-trained%20models.zip?dl=0) and unzip it to the *quora_question_search* directory. <br>
+To run the search, first download the [archive with pre-trained models] (https://www.dropbox.com/s/wxijsqqwrx71q32/Pre-trained%20models.zip?dl=0) and unzip it to the *quora_question_search* directory. <br>

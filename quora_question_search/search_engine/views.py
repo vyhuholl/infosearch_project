@@ -15,7 +15,6 @@ from pymorphy2 import MorphAnalyzer
 from pymorphy2.tokenizers import simple_word_tokenize
 from sklearn.feature_extraction.text import CountVectorizer
 from .elmo_helpers import load_elmo_embeddings, get_elmo_vectors
-from .blim import Batcher, BidirectionalLanguageModel, weight_layers
 from keras.models import Model
 from keras_bert.layers import MaskedGlobalMaxPool1D
 from keras_bert import load_trained_model_from_checkpoint

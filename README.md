@@ -1,4 +1,5 @@
 # infosearch_project
+<br>
 Final project for this course: https://github.com/hse-infosearch/infosearch. A search engine on the [**Quora question pairs** dataset](https://www.kaggle.com/loopdigga/quora-question-pairs-russian), using several different search models: <br>
 <br>
 * **TF-IDF**

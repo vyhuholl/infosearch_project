@@ -18,7 +18,7 @@ from .elmo_helpers import load_elmo_embeddings, get_elmo_vectors
 from keras.models import Model
 from keras_bert.layers import MaskedGlobalMaxPool1D
 from keras_bert import load_trained_model_from_checkpoint
-from keras_bert import Tokenizer, load_locabulary, get_checkpoint_paths
+from keras_bert import Tokenizer, load_vocabulary, get_checkpoint_paths
 from gensim.models.keyedvectors import KeyedVectors, Word2VecKeyedVectors
 
 filterwarnings("ignore")

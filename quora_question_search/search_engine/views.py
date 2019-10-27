@@ -21,11 +21,10 @@ from keras_bert import load_trained_model_from_checkpoint
 from keras_bert import Tokenizer, load_vocabulary, get_checkpoint_paths
 from gensim.models.keyedvectors import KeyedVectors, Word2VecKeyedVectors
 
-filterwarnings("ignore")
-tf2logger = tf.get_logger()
-tf2logger.error("Close TF2 logger handlers")
-tf2logger.root.removeHandler(tf2logger.root.handlers[0])
 tf.disable_v2_behavior()
+
+filterwarnings("ignore")
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 main_logger = logging.getLogger()
 main_logger.setLevel(logging.DEBUG)

@@ -1,6 +1,11 @@
+import logging
 import tensorflow.compat.v1 as tf
+from warnings import filterwarnings
 
 tf.disable_v2_behavior()
+
+filterwarnings("ignore")
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 
 def weight_layers(name, bilm_ops, l2_coef=0.0,

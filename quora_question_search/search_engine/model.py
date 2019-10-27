@@ -1,11 +1,15 @@
 import json
 import h5py
+import logging
 import numpy as np
 import tensorflow.compat.v1 as tf
-
+from warnings import filterwarnings
 from .data import UnicodeCharsVocabulary, Batcher, InvalidNumberOfCharacters
 
 tf.disable_v2_behavior()
+
+filterwarnings("ignore")
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 DTYPE = 'float32'
 DTYPE_INT = 'int64'

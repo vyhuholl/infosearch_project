@@ -5,7 +5,7 @@ import sys
 import re
 import os
 import tensorflow.compat.v1 as tf
-from bilm import Batcher, BidirectionalLanguageModel, weight_layers
+from .bilm import Batcher, BidirectionalLanguageModel, weight_layers
 
 tf.disable_v2_behavior()
 

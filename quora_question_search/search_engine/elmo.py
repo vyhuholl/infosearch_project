@@ -1,11 +1,11 @@
-import logging
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow.compat.v1 as tf
 from warnings import filterwarnings
 
-tf.disable_v2_behavior()
-
 filterwarnings("ignore")
-logging.getLogger("tensorflow").setLevel(logging.ERROR)
+
+tf.disable_v2_behavior()
 
 
 def weight_layers(name, bilm_ops, l2_coef=0.0,

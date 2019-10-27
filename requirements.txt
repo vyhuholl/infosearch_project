@@ -1,5 +1,5 @@
-blim
 django
+gensim
 h5py
 keras
 keras_bert

@@ -1,5 +1,6 @@
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import sys
-import pickle
 import logging
 import sqlite3
 import pandas as pd
@@ -21,10 +22,9 @@ from keras_bert import load_trained_model_from_checkpoint
 from keras_bert import Tokenizer, load_vocabulary, get_checkpoint_paths
 from gensim.models.keyedvectors import KeyedVectors, Word2VecKeyedVectors
 
-tf.disable_v2_behavior()
-
 filterwarnings("ignore")
-logging.getLogger("tensorflow").setLevel(logging.ERROR)
+
+tf.disable_v2_behavior()
 
 main_logger = logging.getLogger()
 main_logger.setLevel(logging.DEBUG)

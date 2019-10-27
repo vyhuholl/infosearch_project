@@ -4,17 +4,16 @@
 import sys
 import re
 import os
-import logging
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow.compat.v1 as tf
 from warnings import filterwarnings
 from .data import Batcher
 from .model import BidirectionalLanguageModel
 from .elmo import weight_layers
 
-tf.disable_v2_behavior()
-
 filterwarnings("ignore")
-logging.getLogger("tensorflow").setLevel(logging.ERROR)
+
+tf.disable_v2_behavior()
 
 
 def tokenize(string):

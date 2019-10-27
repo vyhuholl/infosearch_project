@@ -297,7 +297,7 @@ class FastTextSearch(SearchEngine):
 
 
 class ELMOSearch(SearchEngine):
-    def __init__:
+    def __init__(self):
         super(ELMOSearch, self).__init__()
         self.data = self.load_data()
         self.batcher, self.ids, self.input = self.load_model()
@@ -352,7 +352,7 @@ class ELMOSearch(SearchEngine):
 
 
 class RuBERTSearch(SearchEngine):
-    def __init__:
+    def __init__(self):
         super(RuBERTSearch, self).__init__()
         self.data = self.load_data()
         self.model, self.vocab, self.tokenizer = self.load_model()

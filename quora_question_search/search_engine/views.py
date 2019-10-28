@@ -43,6 +43,7 @@ def build_db():
     logging.info("Reading data...")
     with open("quora_question_pairs_rus.csv", "r") as file:
         df = pd.read_csv(file)
+        df = df.dropna(subset=["question1", "question2"])
         corpus = list(set(df["question1"])) + list(set(df["question2"]))
     logging.info("Data successfully loaded!")
     conn = sqlite3.connect("quora_question_pairs_rus.db")

@@ -41,8 +41,9 @@ def lemmatize(text):
 
 def build_db():
     logging.info("Reading data...")
-    df = pd.read_csv("quora_question_pairs_rus.csv")
-    corpus = list(set(df["question1"])) + list(set(df["question2"]))
+    with open("quora_question_pairs_rus.csv", "r") as file:
+        df = pd.read_csv(file)
+        corpus = list(set(df["question1"])) + list(set(df["question2"]))
     logging.info("Data successfully loaded!")
     conn = sqlite3.connect("quora_question_pairs_rus.db")
     db = conn.cursor()

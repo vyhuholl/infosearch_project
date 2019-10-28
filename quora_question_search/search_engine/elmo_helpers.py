@@ -11,17 +11,20 @@ from .elmo import weight_layers
 
 tf.disable_v2_behavior()
 
+
 def tokenize(string):
     """
     :param string: well, text string
     :return: list of tokens
     """
-    token_pattern = re.compile('(?u)\w+')
+    token_pattern = re.compile(r'(?u)\w+')
     tokens = [t.lower() for t in token_pattern.findall(string)]
     return tokens
 
 
-def get_elmo_vectors(sess, texts, batcher, sentence_character_ids, elmo_sentence_input):
+def get_elmo_vectors(sess, texts, batcher,
+                     sentence_character_ids,
+                     elmo_sentence_input):
     """
     :param sess: TensorFlow session
     :param texts: list of sentences (lists of words)
@@ -37,14 +40,15 @@ def get_elmo_vectors(sess, texts, batcher, sentence_character_ids, elmo_sentence
 
     # Compute ELMo representations.
     elmo_sentence_input_ = sess.run(elmo_sentence_input['weighted_op'],
-                                    feed_dict={sentence_character_ids: sentence_ids})
+                                    feed_dict={sentence_character_ids:
+                                    sentence_ids})
 
     return elmo_sentence_input_
 
 
 def load_elmo_embeddings(directory, top=False):
     """
-    :param directory: directory with an ELMo model ('model.hdf5', 'options.json' and 'vocab.txt.gz')
+    :param directory: directory with an ELMo model
     :param top: use ony top ELMo layer
     :return: ELMo batcher, character id placeholders, op object
     """
@@ -59,11 +63,13 @@ def load_elmo_embeddings(directory, top=False):
     sentence_character_ids = tf.placeholder('int32', shape=(None, None, 50))
 
     # Build the biLM graph.
-    bilm = BidirectionalLanguageModel(options_file, weight_file, max_batch_size=300)
+    bilm = BidirectionalLanguageModel(options_file, weight_file,
+                                      max_batch_size=300)
 
     # Get ops to compute the LM embeddings.
     sentence_embeddings_op = bilm(sentence_character_ids)
 
     # Get an op to compute ELMo (weighted average of the internal biLM layers)
-    elmo_sentence_input = weight_layers('input', sentence_embeddings_op, use_top_only=top)
+    elmo_sentence_input = weight_layers('input', sentence_embeddings_op,
+                                        use_top_only=top)
     return batcher, sentence_character_ids, elmo_sentence_input

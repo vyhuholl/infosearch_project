@@ -19,7 +19,7 @@ def weight_layers(name, bilm_ops, l2_coef=0.0,
         bilm_ops = the tensorflow ops returned to compute internal
             representations from a biLM.  This is the return value
             from BidirectionalLanguageModel(...)(ids_placeholder)
-        l2_coef: the l2 regularization coefficient $\lambda$.
+        l2_coef: the l2 regularization coefficient
             Pass None or 0.0 for no regularization.
         use_top_only: if True, then only use the top layer.
         do_layer_norm: if True, then apply layer normalization to each biLM
@@ -89,7 +89,7 @@ def weight_layers(name, bilm_ops, l2_coef=0.0,
                     pieces.append(w * tf.squeeze(t, axis=1))
             sum_pieces = tf.add_n(pieces)
 
-            # get the regularizer 
+            # get the regularizer
             reg = [
                 r for r in tf.get_collection(
                     tf.GraphKeys.REGULARIZATION_LOSSES)

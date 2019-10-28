@@ -162,7 +162,8 @@ class UnicodeCharsVocabulary(Vocabulary):
         code = np.zeros([self.max_word_length], dtype=np.int32)
         code[:] = self.pad_char
 
-        word_encoded = word.encode('utf-8', 'ignore')[:(self.max_word_length - 2)]
+        word_encoded = word.encode(
+            'utf-8', 'ignore')[:(self.max_word_length - 2)]
         code[0] = self.bow_char
         for k, chr_id in enumerate(word_encoded, start=1):
             code[k] = chr_id

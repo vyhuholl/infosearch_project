@@ -335,8 +335,8 @@ class BidirectionalLanguageModelGraph(object):
                 initializer=tf.random_uniform_initializer(-1.0, 1.0)
             )
             # shape (batch_size, unroll_steps, max_chars, embed_dim)
-            self.char_embedding = tf.nn.embedding_lookup(self.embedding_weights,
-                                                         self.ids_placeholder)
+            self.char_embedding = tf.nn.embedding_lookup(
+                self.embedding_weights, self.ids_placeholder)
 
         # the convolutions
         def make_convolutions(inp):
@@ -555,8 +555,8 @@ class BidirectionalLanguageModelGraph(object):
                     i_direction = 0
                 else:
                     i_direction = 1
-                variable_scope_name = 'RNN_{0}/RNN/MultiRNNCell/Cell{1}'.format(
-                    i_direction, i)
+                f_string = 'RNN_{0}/RNN/MultiRNNCell/Cell{1}'
+                variable_scope_name = f_string.format(i_direction, i)
                 with tf.variable_scope(variable_scope_name):
                     layer_output, final_state = tf.nn.dynamic_rnn(
                         lstm_cell,
@@ -587,7 +587,8 @@ class BidirectionalLanguageModelGraph(object):
                         new_state = tf.concat(
                             [final_state[in_st][:batch_size, :],
                              init_states[in_st][batch_size:, :]], axis=0)
-                        state_update_op = tf.assign(init_states[in_st], new_state)
+                        state_update_op = tf.assign(init_states[in_st],
+                                                    new_state)
                         update_ops.append(state_update_op)
 
                 layer_input = layer_output

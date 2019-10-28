@@ -53,10 +53,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'quora_question_search.urls'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

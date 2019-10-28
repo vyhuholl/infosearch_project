@@ -2,6 +2,7 @@ __pycache__/
 .DS_Store
 
 quora_question_search/quora_question_pairs_rus.csv
+quora_question_search/logs.txt
 
 quora_question_search/model_word2vec/meta.json
 quora_question_search/model_word2vec/model.bin

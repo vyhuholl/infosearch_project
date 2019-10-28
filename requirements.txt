@@ -8,5 +8,5 @@ pymorphy2
 scikit-learn
 scipy
 smart_open > 1.8.1
-tensorflow > 1.10
+tensorflow >= 2.0
 tqdm

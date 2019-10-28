@@ -13,7 +13,6 @@ import sys
 import sqlite3
 import pandas as pd
 import numpy as np
-from os import path
 from tqdm import tqdm
 from django.db import connection
 from django.shortcuts import render
@@ -23,6 +22,7 @@ from pymorphy2 import MorphAnalyzer
 from pymorphy2.tokenizers import simple_word_tokenize
 from sklearn.feature_extraction.text import CountVectorizer
 from .elmo_helpers import load_elmo_embeddings, get_elmo_vectors
+from smart_open import open
 from keras.models import Model
 from keras_bert.layers import MaskedGlobalMaxPool1D
 from keras_bert import load_trained_model_from_checkpoint
@@ -32,7 +32,7 @@ from gensim.models.keyedvectors import KeyedVectors, Word2VecKeyedVectors
 logs_format = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(format=logs_format, level="DEBUG",
                     handlers=[logging.StreamHandler(sys.stdout),
-                    logging.FileHandler("logs.txt")], force=True)
+                              logging.FileHandler("logs.txt")], force=True)
 
 logging.info("Make sure that you have downloaded pre-trained models!")
 
@@ -46,7 +46,7 @@ def lemmatize(text):
 
 def build_db():
     logging.info("Reading data...")
-    df = pd.read_csv(path.join("..", "quora_question_pairs_rus.csv"))
+    df = pd.read_csv(f"{os.pardir}{os.sep}quora_question_pairs_rus.csv")
     corpus = list(set(df["question1"])) + list(set(df["question2"]))
     logging.info("Data successfully loaded!")
     conn = sqlite3.connect("quora_question_pairs_rus.db")
@@ -70,7 +70,7 @@ def build_db():
     return
 
 
-if not path.isfile("quora_question_pairs_rus.db"):
+if not os.path.isfile("quora_question_pairs_rus.db"):
     build_db()
 
 
@@ -111,14 +111,14 @@ class TfIdfSearch(SearchEngine):
         super(TfIdfSearch, self).__init__()
         self.data = self.load_data()
         self.vectorizer = CountVectorizer(tokenizer=lemmatize)
-        if not path.isfile("tfidf_matrix.npy"):
+        if not os.path.isfile("tfidf_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = self.load_matrix("tfidf_matrix.npy")
 
     def fit_transform(self):
         logging.info("Vectorizing texts...")
-        TF = self.vectorizer.fit_transform(self.texts)
+        TF = self.vectorizer.fit_transform(self.data)
         logging.info("Computing IDFs...")
         IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
                         for y in TF.nonzero()[0]])
@@ -154,14 +154,14 @@ class BM25Search(SearchEngine):  # b=0, k=2
         super(BM25Search, self).__init__()
         self.data = self.load_data()
         self.vectorizer = CountVectorizer(tokenizer=lemmatize)
-        if not path.isfile("bm25_matrix.npy"):
+        if not os.path.isfile("bm25_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = self.load_matrix("bm25_matrix.npy")
 
     def fit_transform(self):
         logging.info("Vectorizing texts...")
-        TF = self.vectorizer.fit_transform(self.texts)
+        TF = self.vectorizer.fit_transform(self.data)
         logging.info("Computing IDFs...")
         IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
                         for y in TF.nonzero()[0]])
@@ -198,7 +198,7 @@ class Word2VecSearch(SearchEngine):
         self.data = self.load_data()
         self.model = self.load_model()
         logging.info("Model successfully loaded!")
-        if not path.isfile("word2vec_matrix.npy"):
+        if not os.path.isfile("word2vec_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = self.load_matrix("word2vec_matrix.npy")
@@ -206,7 +206,7 @@ class Word2VecSearch(SearchEngine):
     def load_model(self):
         logging.info("Loading Word2Vec model...")
         return Word2VecKeyedVectors.load_word2vec_format(
-            path.join("..", "model_word2vec", "model.bin"), binary=True)
+            f"{os.pardir}{os.sep}model_word2vec{os.sep}model.bin", binary=True)
 
     def transform(self, text):
         lemmas_vectors = np.zeros((len(text), self.model.vector_size))
@@ -248,16 +248,15 @@ class FastTextSearch(SearchEngine):
         self.data = self.load_data()
         self.model = self.load_model()
         logging.info("Model successfully loaded!")
-        if not path.isfile("fasttext_matrix.npy"):
+        if not os.path.isfile("fasttext_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = self.load_matrix("fasttext_matrix.npy")
 
     def load_model(self):
         logging.info("Loading FastText model...")
-        return KeyedVectors.load(path.join("..",
-                                           "model_fasttext",
-                                           "model.model"))
+        return KeyedVectors.load(
+            f"{os.pardir}{os.sep}model_fasttext{os.sep}model.model")
 
     def transform(self, text):
         lemmas_vectors = np.zeros((len(text), self.model.vector_size))
@@ -299,7 +298,7 @@ class ELMOSearch(SearchEngine):
         self.data = self.load_data()
         self.batcher, self.ids, self.input = self.load_model()
         logging.info("Model successfully loaded!")
-        if not path.isfile("elmo_matrix.npy"):
+        if not os.path.isfile("elmo_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = self.load_matrix("elmo_matrix.npy")
@@ -307,7 +306,7 @@ class ELMOSearch(SearchEngine):
     def load_model(self):
         logging.info("Loading ELMO model...")
         tf.reset_default_graph()
-        return load_elmo_embeddings(path.join("..", "model_elmo"))
+        return load_elmo_embeddings(f"{os.pardir}{os.sep}model_elmo")
 
     def transform(self, text):
         with tf.Session() as sess:
@@ -354,7 +353,7 @@ class RuBERTSearch(SearchEngine):
         self.data = self.load_data()
         self.model, self.vocab, self.tokenizer = self.load_model()
         logging.info("Model successfully loaded!")
-        if not path.isfile("bert_matrix.npy"):
+        if not os.path.isfile("bert_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = self.load_matrix("bert_matrix.npy")
@@ -362,7 +361,7 @@ class RuBERTSearch(SearchEngine):
     def load_model(self):
         logging.info("Loading RuBERT model...")
         tf.reset_default_graph()
-        paths = get_checkpoint_paths(path.join("..", "model_bert"))
+        paths = get_checkpoint_paths(f"{os.pardir}{os.sep}model_bert")
         inputs = load_trained_model_from_checkpoint(
             config_file=paths.config,
             checkpoint_file=paths.checkpoint, seq_len=50)

@@ -2,7 +2,14 @@ __pycache__/
 .DS_Store
 
 quora_question_search/quora_question_pairs_rus.csv
-quora_question_search/logs.txt
+quora_question_search/quora_question_pairs_rus.db
+quora_question_search/tfidf_matrix.npy
+quora_question_search/bm25_matrix.npy
+quora_question_search/word2vec_matrix.npy
+quora_question_search/fasttext_matrix.npy
+quora_question_search/elmo_matrix.npy
+quora_question_search/bert_matrix.npy
+quora_question_search/logs.log
 
 quora_question_search/model_word2vec/meta.json
 quora_question_search/model_word2vec/model.bin
@@ -22,11 +29,3 @@ quora_question_search/model_bert/bert_config.json
 quora_question_search/model_bert/bert_model.ckpt.data-00000-of-00001
 quora_question_search/model_bert/bert_model.ckpt.index
 quora_question_search/model_bert/vocab.txt
-
-quora_question_search/search_engine/quora_question_pairs_rus.db
-quora_question_search/search_engine/tfidf_matrix.npy
-quora_question_search/search_engine/bm25_matrix.npy
-quora_question_search/search_engine/word2vec_matrix.npy
-quora_question_search/search_engine/fasttext_matrix.npy
-quora_question_search/search_engine/elmo_matrix.npy
-quora_question_search/search_engine/bert_matrix.npy

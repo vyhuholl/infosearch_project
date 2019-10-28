@@ -29,11 +29,6 @@ from keras_bert import load_trained_model_from_checkpoint
 from keras_bert import Tokenizer, load_vocabulary, get_checkpoint_paths
 from gensim.models.keyedvectors import KeyedVectors, Word2VecKeyedVectors
 
-logs_format = "%(asctime)s - %(levelname)s - %(message)s"
-logging.basicConfig(format=logs_format, level="DEBUG",
-                    handlers=[logging.StreamHandler(sys.stdout),
-                              logging.FileHandler("logs.txt")], force=True)
-
 logging.info("Make sure that you have downloaded pre-trained models!")
 
 m = MorphAnalyzer()
@@ -46,9 +41,8 @@ def lemmatize(text):
 
 def build_db():
     logging.info("Reading data...")
-    with open(f"{os.pardir}{os.sep}quora_question_pairs_rus.csv", "r") as file:
-        df = pd.read_csv(file)
-        corpus = list(set(df["question1"])) + list(set(df["question2"]))
+    df = pd.read_csv("quora_question_pairs_rus.csv")
+    corpus = list(set(df["question1"])) + list(set(df["question2"]))
     logging.info("Data successfully loaded!")
     conn = sqlite3.connect("quora_question_pairs_rus.db")
     db = conn.cursor()
@@ -207,8 +201,7 @@ class Word2VecSearch(SearchEngine):
     def load_model(self):
         logging.info("Loading Word2Vec model...")
         return Word2VecKeyedVectors.load_word2vec_format(
-            os.fsencode(f"{os.pardir}{os.sep}model_word2vec{os.sep}model.bin"),
-            binary=True)
+            os.fsencode(f"model_word2vec{os.sep}model.bin"), binary=True)
 
     def transform(self, text):
         lemmas_vectors = np.zeros((len(text), self.model.vector_size))
@@ -257,9 +250,8 @@ class FastTextSearch(SearchEngine):
 
     def load_model(self):
         logging.info("Loading FastText model...")
-        return KeyedVectors.load(
-            os.fsencode(
-                f"{os.pardir}{os.sep}model_fasttext{os.sep}model.model"))
+        return KeyedVectors.load(os.fsencode(
+            f"model_fasttext{os.sep}model.model"))
 
     def transform(self, text):
         lemmas_vectors = np.zeros((len(text), self.model.vector_size))
@@ -309,8 +301,7 @@ class ELMOSearch(SearchEngine):
     def load_model(self):
         logging.info("Loading ELMO model...")
         tf.reset_default_graph()
-        return load_elmo_embeddings(
-            os.fsencode(f"{os.pardir}{os.sep}model_elmo"))
+        return load_elmo_embeddings("model_elmo")
 
     def transform(self, text):
         with tf.Session() as sess:
@@ -365,8 +356,7 @@ class RuBERTSearch(SearchEngine):
     def load_model(self):
         logging.info("Loading RuBERT model...")
         tf.reset_default_graph()
-        paths = get_checkpoint_paths(
-            os.fsencode(f"{os.pardir}{os.sep}model_bert"))
+        paths = get_checkpoint_paths("model_bert")
         inputs = load_trained_model_from_checkpoint(
             config_file=paths.config,
             checkpoint_file=paths.checkpoint, seq_len=50)

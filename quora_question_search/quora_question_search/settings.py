@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import logging
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,6 +53,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'quora_question_search.urls'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -85,21 +90,43 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+AUTH_PASSWORD_VALIDATORS = []
 
+LOGGING_CONFIG = None
+
+f_1 = "%(asctime)s - %(levelname)s - %(message)s"
+f_2 = "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
+
+logging.config.dictConfig({
+    "version": 1,
+    "formatters": {
+        "simple": {
+            "format": f_1
+        },
+        "verbose": {
+            "format": f_2
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple"
+            "stream": "ext://sys.stdout"
+        },
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "formatter": "verbose",
+            "filename": "logs.log"
+        }
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"]
+        }
+    }
+})
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/

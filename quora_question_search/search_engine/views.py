@@ -30,7 +30,9 @@ from keras_bert import Tokenizer, load_vocabulary, get_checkpoint_paths
 from gensim.models.keyedvectors import KeyedVectors, Word2VecKeyedVectors
 
 logs_format = "%(asctime)s - %(levelname)s - %(message)s"
-logging.basicConfig(filename="logs.txt", format=logs_format, level="DEBUG")
+logging.basicConfig(format=logs_format, level="DEBUG",
+                    handlers=[logging.StreamHandler(sys.stdout),
+                    logging.FileHandler("logs.txt")], force=True)
 
 logging.info("Make sure that you have downloaded pre-trained models!")
 

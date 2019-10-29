@@ -29,7 +29,9 @@ from keras_bert import load_trained_model_from_checkpoint
 from keras_bert import Tokenizer, load_vocabulary, get_checkpoint_paths
 from gensim.models.keyedvectors import KeyedVectors, Word2VecKeyedVectors
 
-logging.info("Make sure that you have downloaded pre-trained models!")
+logger = logging.getLogger(name="django")
+
+logger.info("Make sure that you have downloaded pre-trained models!")
 
 m = MorphAnalyzer()
 
@@ -40,12 +42,12 @@ def lemmatize(text):
 
 
 def build_db():
-    logging.info("Reading data...")
+    logger.info("Reading data...")
     with open("quora_question_pairs_rus.csv", "r") as file:
         df = pd.read_csv(file)
         df = df.dropna(subset=["question1", "question2"])
         corpus = list(set(df["question1"])) + list(set(df["question2"]))
-    logging.info("Data successfully loaded!")
+    logger.info("Data successfully loaded!")
     conn = sqlite3.connect("quora_question_pairs_rus.db")
     db = conn.cursor()
     db.execute("""
@@ -54,7 +56,7 @@ def build_db():
               text TEXT NOT NULL,
               text_lemmatized TEXT NOT NULL);
               """)
-    logging.info("Creating the database...")
+    logger.info("Creating the database...")
     for text in tqdm(corpus):
         db.execute("""
                    INSERT INTO text_corpora
@@ -63,7 +65,7 @@ def build_db():
                    """, (text, " ".join(lemmatize(text))))
         conn.commit()
     conn.close()
-    logging.info("Database creation finished.")
+    logger.info("Database creation finished.")
     return
 
 
@@ -77,7 +79,7 @@ class SearchEngine():
 
     @staticmethod
     def load_data():
-        logging.info("Loading data...")
+        logger.info("Loading data...")
         conn = connection
         db = conn.cursor()
         db.execute("""
@@ -85,7 +87,7 @@ class SearchEngine():
                    """)
         data = db.fetchall()
         conn.close()
-        logging.info("Data loaded!")
+        logger.info("Data loaded!")
         return np.array([text[0] for text in data])
 
     @staticmethod
@@ -116,24 +118,24 @@ class TfIdfSearch(SearchEngine):
             self.matrix = self.load_matrix("tfidf_matrix.npy")
 
     def fit_transform(self):
-        logging.info("Vectorizing texts...")
+        logger.info("Vectorizing texts...")
         TF = self.vectorizer.fit_transform(self.data)
-        logging.info("Computing IDFs...")
+        logger.info("Computing IDFs...")
         IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
                         for y in TF.nonzero()[0]])
-        logging.info("Building TF-IDF matrix...")
+        logger.info("Building TF-IDF matrix...")
         TF_IDF = np.matmul(TF.transpose(), IDF)
         self.matrix = csr_matrix((TF_IDF, TF.indices, TF.indptr),
                                  shape=TF.shape)
         self.matrix = self.matrix.transpose(copy=True)
         np.save("tfidf_matrix.npy", self.matrix)
-        logging.info("Matrix creation finished.")
+        logger.info("Matrix creation finished.")
 
     def transform(self, texts):
         return self.vectorizer.transform(texts)
 
     def search(self, query):
-        logging.info("Searching...")
+        logger.info("Searching...")
         query_vec = self.transform([query])
         result = np.array((query_vec * self.matrix).todense())[0]
         indices = np.argsort(result)[::-1].tolist()[:10]
@@ -159,24 +161,24 @@ class BM25Search(SearchEngine):  # b=0, k=2
             self.matrix = self.load_matrix("bm25_matrix.npy")
 
     def fit_transform(self):
-        logging.info("Vectorizing texts...")
+        logger.info("Vectorizing texts...")
         TF = self.vectorizer.fit_transform(self.data)
-        logging.info("Computing IDFs...")
+        logger.info("Computing IDFs...")
         IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
                         for y in TF.nonzero()[0]])
-        logging.info("Building BM25 matrix...")
+        logger.info("Building BM25 matrix...")
         BM25 = IDF * TF.data * 3 / (TF.data + 3)
         self.matrix = csr_matrix((BM25, TF.indices, TF.indptr),
                                  shape=TF.shape)
         self.matrix = self.matrix.transpose(copy=True)
         np.save("bm25_matrix.npy", self.matrix)
-        logging.info("Matrix creation finished.")
+        logger.info("Matrix creation finished.")
 
     def transform(self, texts):
         return self.vectorizer.transform(texts)
 
     def search(self, query):
-        logging.info("Searching...")
+        logger.info("Searching...")
         query_vec = self.transform([query])
         result = np.array((query_vec * self.matrix).todense())[0]
         indices = np.argsort(result)[::-1].tolist()[:10]
@@ -196,14 +198,14 @@ class Word2VecSearch(SearchEngine):
         super(Word2VecSearch, self).__init__()
         self.data = self.load_data()
         self.model = self.load_model()
-        logging.info("Model successfully loaded!")
+        logger.info("Model successfully loaded!")
         if not os.path.isfile("word2vec_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = self.load_matrix("word2vec_matrix.npy")
 
     def load_model(self):
-        logging.info("Loading Word2Vec model...")
+        logger.info("Loading Word2Vec model...")
         return Word2VecKeyedVectors.load_word2vec_format(
             os.fsencode(f"model_word2vec{os.sep}model.bin"), binary=True)
 
@@ -218,15 +220,15 @@ class Word2VecSearch(SearchEngine):
         return text_vec
 
     def fit_transform(self):
-        logging.info("Building Word2Vec matrix...")
+        logger.info("Building Word2Vec matrix...")
         self.matrix = np.zeros((100000, self.model.vector_size))
         for i in tqdm(range(100000)):
             self.matrix[i] = self.transform(self.data[i])
         np.save("word2vec_matrix.npy", self.matrix)
-        logging.info("Matrix creation finished.")
+        logger.info("Matrix creation finished.")
 
     def search(self, query):
-        logging.info("Searching...")
+        logger.info("Searching...")
         query_vec = np.transpose(self.transform(lemmatize(query)))
         result = np.matmul(self.matrix, query_vec)
         indices = np.argsort(result)[::-1].tolist()[:10]
@@ -246,14 +248,14 @@ class FastTextSearch(SearchEngine):
         super(FastTextSearch, self).__init__()
         self.data = self.load_data()
         self.model = self.load_model()
-        logging.info("Model successfully loaded!")
+        logger.info("Model successfully loaded!")
         if not os.path.isfile("fasttext_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = self.load_matrix("fasttext_matrix.npy")
 
     def load_model(self):
-        logging.info("Loading FastText model...")
+        logger.info("Loading FastText model...")
         return KeyedVectors.load(os.fsencode(
             f"model_fasttext{os.sep}model.model"))
 
@@ -268,15 +270,15 @@ class FastTextSearch(SearchEngine):
         return text_vec
 
     def fit_transform(self):
-        logging.info("Building FastText matrix...")
+        logger.info("Building FastText matrix...")
         self.matrix = np.zeros((100000, self.model.vector_size))
         for i in tqdm(range(100000)):
             self.matrix[i] = self.transform(self.data[i])
         np.save("fasttext_matrix.npy", self.matrix)
-        logging.info("Matrix creation finished.")
+        logger.info("Matrix creation finished.")
 
     def search(self, query):
-        logging.info("Searching...")
+        logger.info("Searching...")
         query_vec = np.transpose(self.transform(lemmatize(query)))
         result = np.matmul(self.matrix, query_vec)
         indices = np.argsort(result)[::-1].tolist()[:10]
@@ -296,14 +298,14 @@ class ELMOSearch(SearchEngine):
         super(ELMOSearch, self).__init__()
         self.data = self.load_data()
         self.batcher, self.ids, self.input = self.load_model()
-        logging.info("Model successfully loaded!")
+        logger.info("Model successfully loaded!")
         if not os.path.isfile("elmo_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = self.load_matrix("elmo_matrix.npy")
 
     def load_model(self):
-        logging.info("Loading ELMO model...")
+        logger.info("Loading ELMO model...")
         tf.reset_default_graph()
         return load_elmo_embeddings("model_elmo")
 
@@ -318,7 +320,7 @@ class ELMOSearch(SearchEngine):
         return text_vec
 
     def fit_transform(self):
-        logging.info("Building ELMO matrix...")
+        logger.info("Building ELMO matrix...")
         self.matrix = np.zeros((0, 1024))
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer)
@@ -329,10 +331,10 @@ class ELMOSearch(SearchEngine):
                                              self.batcher, self.ids,
                                              self.input), axis=1)))
         np.save("elmo_matrix.npy", self.matrix)
-        logging.info("Matrix creation finished.")
+        logger.info("Matrix creation finished.")
 
     def search(self, query):
-        logging.info("Searching...")
+        logger.info("Searching...")
         result = np.matmul(self.matrix, self.transform(lemmatize(query)))
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []
@@ -351,14 +353,14 @@ class RuBERTSearch(SearchEngine):
         super(RuBERTSearch, self).__init__()
         self.data = self.load_data()
         self.model, self.vocab, self.tokenizer = self.load_model()
-        logging.info("Model successfully loaded!")
+        logger.info("Model successfully loaded!")
         if not os.path.isfile("bert_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = self.load_matrix("bert_matrix.npy")
 
     def load_model(self):
-        logging.info("Loading RuBERT model...")
+        logger.info("Loading RuBERT model...")
         tf.reset_default_graph()
         paths = get_checkpoint_paths("model_bert")
         inputs = load_trained_model_from_checkpoint(
@@ -370,7 +372,7 @@ class RuBERTSearch(SearchEngine):
                      outputs=outputs), vocab, Tokenizer(vocab)
 
     def fit_transform(self):
-        logging.info("Building RuBERT matrix...")
+        logger.info("Building RuBERT matrix...")
         self.matrix = np.zeros((100000, 768))
         segments = np.array([[0 for i in range(50)]])
         for index, text in tqdm(enumerate(self.data)):
@@ -379,10 +381,10 @@ class RuBERTSearch(SearchEngine):
                              + [0 for i in range(50 - len(tokens))]])
             self.matrix[index] = self.model.predict([idxs, segments])[0]
         np.save("bert_matrix.npy", self.matrix)
-        logging.info("Matrix creation finished.")
+        logger.info("Matrix creation finished.")
 
     def search(self, query):
-        logging.info("Searching...")
+        logger.info("Searching...")
         segments = np.array([[0 for i in range(50)]])
         tokens = self.tokenizer.tokenize(" ".join(lemmatize(query)))[:50]
         idxs = np.array([[self.vocab[token] for token in tokens]

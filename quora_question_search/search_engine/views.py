@@ -132,7 +132,7 @@ class TfIdfSearch(SearchEngine):
     def search(self, query):
         logging.info("Searching...")
         query_vec = self.transform([query])
-        result = np.array((query_vec * self.matrix).todense())[0]
+        result = np.matmul(self.matrix, query_vec)
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []
         conn = sqlite3.connect("quora_question_pairs_rus.db")
@@ -140,7 +140,7 @@ class TfIdfSearch(SearchEngine):
         for index in tqdm(indices):
             db.execute(f"""SELECT text from text_corpora
                                   WHERE id={index}""")
-            text = db.fetchone()
+            text = db.fetchone()[0]
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -185,7 +185,7 @@ class BM25Search(SearchEngine):  # b=0, k=2
         for index in tqdm(indices):
             db.execute(f"""SELECT text from text_corpora
                                   WHERE id={index}""")
-            text = db.fetchone()
+            text = db.fetchone()[0]
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -236,7 +236,7 @@ class Word2VecSearch(SearchEngine):
         for index in tqdm(indices):
             db.execute(f"""SELECT text from text_corpora
                                   WHERE id={index}""")
-            text = db.fetchone()
+            text = db.fetchone()[0]
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -287,7 +287,7 @@ class FastTextSearch(SearchEngine):
         for index in tqdm(indices):
             db.execute(f"""SELECT text from text_corpora
                                   WHERE id={index}""")
-            text = db.fetchone()
+            text = db.fetchone()[0]
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -343,7 +343,7 @@ class ELMOSearch(SearchEngine):
         for index in tqdm(indices):
             db.execute(f"""SELECT text from text_corpora
                                   WHERE id={index}""")
-            text = db.fetchone()
+            text = db.fetchone()[0]
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -399,7 +399,7 @@ class RuBERTSearch(SearchEngine):
         for index in tqdm(indices):
             db.execute(f"""SELECT text from text_corpora
                                   WHERE id={index}""")
-            text = db.fetchone()
+            text = db.fetchone()[0]
             best_match.append((text, result[index]))
         db.close()
         return best_match

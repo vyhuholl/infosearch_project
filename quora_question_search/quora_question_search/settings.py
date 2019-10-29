@@ -105,7 +105,7 @@ logging.config.dictConfig({
     },
     "handlers": {
         "console": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "simple",
             "stream": "ext://sys.stdout"

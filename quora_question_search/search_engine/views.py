@@ -138,7 +138,7 @@ class TfIdfSearch(SearchEngine):
         best_match = []
         conn = connection
         db = conn.cursor()
-        for index in indices:
+        for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
                                  WHERE id=%d""", (index,))
             best_match.append((text, result[index]))
@@ -181,7 +181,7 @@ class BM25Search(SearchEngine):  # b=0, k=2
         best_match = []
         conn = connection
         db = conn.cursor()
-        for index in indices:
+        for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
                                  WHERE id=%d""", (index,))
             best_match.append((text, result[index]))
@@ -231,7 +231,7 @@ class Word2VecSearch(SearchEngine):
         best_match = []
         conn = connection
         db = conn.cursor()
-        for index in indices:
+        for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
                                  WHERE id=%d""", (index,))
             best_match.append((text, result[index]))
@@ -281,7 +281,7 @@ class FastTextSearch(SearchEngine):
         best_match = []
         conn = connection
         db = conn.cursor()
-        for index in indices:
+        for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
                                  WHERE id=%d""", (index,))
             best_match.append((text, result[index]))
@@ -336,7 +336,7 @@ class ELMOSearch(SearchEngine):
         best_match = []
         conn = connection
         db = conn.cursor()
-        for index in indices:
+        for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
                                  WHERE id=%d""", (index,))
             best_match.append((text, result[index]))
@@ -371,7 +371,7 @@ class RuBERTSearch(SearchEngine):
         logging.info("Building RuBERT matrix...")
         self.matrix = np.zeros((100000, 768))
         segments = np.array([[0 for i in range(50)]])
-        for index, text in enumerate(self.data):
+        for index, text in tqdm(enumerate(self.data)):
             tokens = self.tokenizer.tokenize(" ".join(text))[:50]
             idxs = np.array([[self.vocab[token] for token in tokens]
                              + [0 for i in range(50 - len(tokens))]])
@@ -391,7 +391,7 @@ class RuBERTSearch(SearchEngine):
         best_match = []
         conn = connection
         db = conn.cursor()
-        for index in indices:
+        for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
                                  WHERE id=%d""", (index,))
             best_match.append((text, result[index]))

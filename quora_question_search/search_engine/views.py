@@ -112,6 +112,7 @@ class TfIdfSearch(SearchEngine):
         if not os.path.isfile("tfidf_matrix.npy"):
             self.fit_transform()
         else:
+            self.vectorizer.fit(self.data)
             self.matrix = self.load_matrix("tfidf_matrix.npy")
 
     def fit_transform(self):
@@ -152,6 +153,7 @@ class BM25Search(SearchEngine):  # b=0, k=2
         if not os.path.isfile("bm25_matrix.npy"):
             self.fit_transform()
         else:
+            self.vectorizer.fit(self.data)
             self.matrix = self.load_matrix("bm25_matrix.npy")
 
     def fit_transform(self):

@@ -405,7 +405,7 @@ def main(request):
     results = []
     failed_search = False
     if query and model:
-        if model == "tf_idf":
+        if model == "tf-idf":
             engine = TfIdfSearch()
         elif model == "bm25":
             engine = BM25Search()

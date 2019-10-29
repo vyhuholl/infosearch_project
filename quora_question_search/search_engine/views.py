@@ -417,6 +417,8 @@ def main(request):
             engine = ELMOSearch()
         elif model == "bert":
             engine = RuBERTSearch()
+        else:
+            engine = None
         results = engine.search(query)
         if not results:
             failed_search = True

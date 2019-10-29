@@ -121,10 +121,7 @@ class TfIdfSearch(SearchEngine):
         IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
                         for y in TF.nonzero()[0]])
         logging.info("Building TF-IDF matrix...")
-        TF_IDF = np.matmul(TF.data.transpose(), IDF)
-        self.matrix = csr_matrix((TF_IDF, TF.indices, TF.indptr),
-                                 shape=TF.shape)
-        self.matrix = self.matrix.transpose(copy=True)
+        self.matrix = np.matmul(TF.data.transpose(), IDF)
         np.save("tfidf_matrix.npy", self.matrix)
         logging.info("Matrix creation finished.")
 

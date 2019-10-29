@@ -94,6 +94,7 @@ f_2 = "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
 
 logging.config.dictConfig({
     "version": 1,
+    "disable_existing_loggers": False,
     "formatters": {
         "simple": {
             "format": f_1

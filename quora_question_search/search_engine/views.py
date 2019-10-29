@@ -400,8 +400,8 @@ class RuBERTSearch(SearchEngine):
 
 
 def main(request):
-    query = request.GET["query"]
-    model = request.GET["model"]
+    query = request.GET.get("query")
+    model = request.GET.get("model")
     results = []
     failed_search = False
     if query and model:

@@ -117,7 +117,7 @@ logging.config.dictConfig({
         }
     },
     "loggers": {
-        "django": {
+        "root": {
             "handlers": ["console", "file"]
         }
     }

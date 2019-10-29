@@ -29,7 +29,7 @@ from keras_bert import load_trained_model_from_checkpoint
 from keras_bert import Tokenizer, load_vocabulary, get_checkpoint_paths
 from gensim.models.keyedvectors import KeyedVectors, Word2VecKeyedVectors
 
-logger = logging.getLogger(name="django")
+logger = logging.getLogger()
 
 logger.info("Make sure that you have downloaded pre-trained models!")
 

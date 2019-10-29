@@ -138,8 +138,9 @@ class TfIdfSearch(SearchEngine):
         conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
-            text = db.execute(f"""SELECT text from text_corpora
-                                  WHERE id={index}""")[0][0]
+            db.execute(f"""SELECT text from text_corpora
+                                  WHERE id={index}""")
+            text = db.fetchone()
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -182,8 +183,9 @@ class BM25Search(SearchEngine):  # b=0, k=2
         conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
-            text = db.execute(f"""SELECT text from text_corpora
-                                  WHERE id={index}""")[0][0]
+            db.execute(f"""SELECT text from text_corpora
+                                  WHERE id={index}""")
+            text = db.fetchone()
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -232,8 +234,9 @@ class Word2VecSearch(SearchEngine):
         conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
-            text = db.execute(f"""SELECT text from text_corpora
-                                  WHERE id={index}""")[0][0]
+            db.execute(f"""SELECT text from text_corpora
+                                  WHERE id={index}""")
+            text = db.fetchone()
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -282,8 +285,9 @@ class FastTextSearch(SearchEngine):
         conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
-            text = db.execute(f"""SELECT text from text_corpora
-                                  WHERE id={index}""")[0][0]
+            db.execute(f"""SELECT text from text_corpora
+                                  WHERE id={index}""")
+            text = db.fetchone()
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -337,8 +341,9 @@ class ELMOSearch(SearchEngine):
         conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
-            text = db.execute(f"""SELECT text from text_corpora
-                                  WHERE id={index}""")[0][0]
+            db.execute(f"""SELECT text from text_corpora
+                                  WHERE id={index}""")
+            text = db.fetchone()
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -392,8 +397,9 @@ class RuBERTSearch(SearchEngine):
         conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
-            text = db.execute(f"""SELECT text from text_corpora
-                                  WHERE id={index}""")[0][0]
+            db.execute(f"""SELECT text from text_corpora
+                                  WHERE id={index}""")
+            text = db.fetchone()
             best_match.append((text, result[index]))
         db.close()
         return best_match

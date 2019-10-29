@@ -138,7 +138,7 @@ class TfIdfSearch(SearchEngine):
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
-                                 WHERE id=%d""", (index,))
+                                 WHERE id=%s""", (index,))
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -181,7 +181,7 @@ class BM25Search(SearchEngine):  # b=0, k=2
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
-                                 WHERE id=%d""", (index,))
+                                 WHERE id=%s""", (index,))
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -231,7 +231,7 @@ class Word2VecSearch(SearchEngine):
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
-                                 WHERE id=%d""", (index,))
+                                 WHERE id=%s""", (index,))
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -281,7 +281,7 @@ class FastTextSearch(SearchEngine):
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
-                                 WHERE id=%d""", (index,))
+                                 WHERE id=%s""", (index,))
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -336,7 +336,7 @@ class ELMOSearch(SearchEngine):
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
-                                 WHERE id=%d""", (index,))
+                                 WHERE id=%s""", (index,))
             best_match.append((text, result[index]))
         db.close()
         return best_match
@@ -391,7 +391,7 @@ class RuBERTSearch(SearchEngine):
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
-                                 WHERE id=%d""", (index,))
+                                 WHERE id=%s""", (index,))
             best_match.append((text, result[index]))
         db.close()
         return best_match

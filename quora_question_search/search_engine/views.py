@@ -77,6 +77,7 @@ class SearchEngine():
 
     @staticmethod
     def load_data():
+        logging.info("Loading data...")
         conn = connection
         db = conn.cursor()
         db.execute("""
@@ -84,6 +85,7 @@ class SearchEngine():
                    """)
         data = db.fetchall()
         conn.close()
+        logging.info("Data loaded!")
         return np.array([text[0] for text in data])
 
     @staticmethod

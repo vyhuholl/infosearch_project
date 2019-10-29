@@ -118,11 +118,12 @@ logging.config.dictConfig({
         }
     },
     "loggers": {
-        "root": {
-            "handlers": ["console", "file"]
+        "": {
+            "level": "DEBUG",
+            "handlers": ["console", "file"],
         }
     }
-})
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/

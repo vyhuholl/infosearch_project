@@ -131,7 +131,7 @@ class TfIdfSearch(SearchEngine):
 
     def search(self, query):
         logging.info("Searching...")
-        query_vec = self.transform([query])
+        query_vec = np.transpose(self.transform([query])).flatten()
         result = np.matmul(self.matrix, query_vec)
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []

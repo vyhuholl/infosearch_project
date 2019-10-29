@@ -119,9 +119,10 @@ class TfIdfSearch(SearchEngine):
         logging.info("Vectorizing texts...")
         TF = self.vectorizer.fit_transform(self.data)
         print(TF.shape)
+        N = (TF.getnnz(axis=1)).sum()
         logging.info("Computing IDFs...")
-        IDF = np.array([(np.log(TF.getnnz(axis=1).sum()) - y) / y
-                        for y in TF.nonzero()[0]])
+        IDF = np.array([np.log((N - y + 0.5) / (y + 0.5))
+                        for y in tf.nonzero()[0]])
         print(IDF.shape)
         logging.info("Building TF-IDF matrix...")
         TF_IDF = np.matmul(TF.data, IDF)
@@ -168,9 +169,10 @@ class BM25Search(SearchEngine):  # b=0, k=2
     def fit_transform(self):
         logging.info("Vectorizing texts...")
         TF = self.vectorizer.fit_transform(self.data)
+        N = (TF.getnnz(axis=1)).sum()
         logging.info("Computing IDFs...")
-        IDF = np.array([(np.log(TF.getnnz(axis=1).sum()) - y) / y
-                        for y in TF.nonzero()[0]])
+        IDF = np.array([np.log((N - y + 0.5) / (y + 0.5))
+                        for y in tf.nonzero()[0]])
         logging.info("Building BM25 matrix...")
         BM25 = IDF * TF.data * 3 / (TF.data + 3)
         self.matrix = csr_matrix((BM25, TF.indices, TF.indptr),

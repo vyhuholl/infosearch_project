@@ -14,7 +14,6 @@ import sqlite3
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from django.db import connection
 from django.shortcuts import render
 from scipy.sparse import csr_matrix
 from warnings import filterwarnings
@@ -78,7 +77,7 @@ class SearchEngine():
     @staticmethod
     def load_data():
         logging.info("Loading data...")
-        conn = connection
+        conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         db.execute("""
                    SELECT text_lemmatized FROM text_corpora LIMIT 100000
@@ -118,11 +117,12 @@ class TfIdfSearch(SearchEngine):
     def fit_transform(self):
         logging.info("Vectorizing texts...")
         TF = self.vectorizer.fit_transform(self.data)
+        TF.transpose()
         logging.info("Computing IDFs...")
         IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
                         for y in TF.nonzero()[0]])
         logging.info("Building TF-IDF matrix...")
-        TF_IDF = np.matmul(TF.transpose(), IDF)
+        TF_IDF = np.matmul(TF, IDF)
         self.matrix = csr_matrix((TF_IDF, TF.indices, TF.indptr),
                                  shape=TF.shape)
         self.matrix = self.matrix.transpose(copy=True)
@@ -138,7 +138,7 @@ class TfIdfSearch(SearchEngine):
         result = np.array((query_vec * self.matrix).todense())[0]
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []
-        conn = connection
+        conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
@@ -181,7 +181,7 @@ class BM25Search(SearchEngine):  # b=0, k=2
         result = np.array((query_vec * self.matrix).todense())[0]
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []
-        conn = connection
+        conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
@@ -231,7 +231,7 @@ class Word2VecSearch(SearchEngine):
         result = np.matmul(self.matrix, query_vec)
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []
-        conn = connection
+        conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
@@ -281,7 +281,7 @@ class FastTextSearch(SearchEngine):
         result = np.matmul(self.matrix, query_vec)
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []
-        conn = connection
+        conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
@@ -336,7 +336,7 @@ class ELMOSearch(SearchEngine):
         result = np.matmul(self.matrix, self.transform(lemmatize(query)))
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []
-        conn = connection
+        conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora
@@ -391,7 +391,7 @@ class RuBERTSearch(SearchEngine):
         result = np.matmul(self.matrix, query_vec)
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []
-        conn = connection
+        conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()
         for index in tqdm(indices):
             text = db.execute(f"""SELECT text from text_corpora

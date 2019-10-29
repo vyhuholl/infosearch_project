@@ -118,11 +118,18 @@ class TfIdfSearch(SearchEngine):
     def fit_transform(self):
         logging.info("Vectorizing texts...")
         TF = self.vectorizer.fit_transform(self.data)
+        print(TF.shape)
         logging.info("Computing IDFs...")
-        IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
+        IDF = np.array([(np.log(TF.getnnz(axis=1).sum()) - y) / y
                         for y in TF.nonzero()[0]])
+        print(IDF.shape)
         logging.info("Building TF-IDF matrix...")
-        self.matrix = np.matmul(TF.data.transpose(), IDF)
+        TF_IDF = np.matmul(TF.data, IDF)
+        print(TF_IDF.shape)
+        self.matrix = csr_matrix((TF_IDF, TF.indices, TF.indptr),
+                                 shape=TF.shape)
+        self.matrix = self.matrix.transpose(copy=True)
+        print(self.matrix.shape)
         np.save("tfidf_matrix.npy", self.matrix)
         logging.info("Matrix creation finished.")
 
@@ -131,8 +138,9 @@ class TfIdfSearch(SearchEngine):
 
     def search(self, query):
         logging.info("Searching...")
-        query_vec = np.transpose(self.transform([query])).flatten()
-        result = np.matmul(self.matrix, query_vec)
+        query_vec = self.transform([query]).transpose()
+        print(query_vec.shape)
+        result = np.array((query_vec * self.matrix).todense())[0]
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []
         conn = sqlite3.connect("quora_question_pairs_rus.db")
@@ -161,7 +169,7 @@ class BM25Search(SearchEngine):  # b=0, k=2
         logging.info("Vectorizing texts...")
         TF = self.vectorizer.fit_transform(self.data)
         logging.info("Computing IDFs...")
-        IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
+        IDF = np.array([(np.log(TF.getnnz(axis=1).sum()) - y) / y
                         for y in TF.nonzero()[0]])
         logging.info("Building BM25 matrix...")
         BM25 = IDF * TF.data * 3 / (TF.data + 3)

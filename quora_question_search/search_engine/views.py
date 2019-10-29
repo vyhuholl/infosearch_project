@@ -117,12 +117,11 @@ class TfIdfSearch(SearchEngine):
     def fit_transform(self):
         logging.info("Vectorizing texts...")
         TF = self.vectorizer.fit_transform(self.data)
-        TF.transpose()
         logging.info("Computing IDFs...")
         IDF = np.array([((TF.getnnz(axis=1)).sum() - y) / y
                         for y in TF.nonzero()[0]])
         logging.info("Building TF-IDF matrix...")
-        TF_IDF = np.matmul(TF, IDF)
+        TF_IDF = np.matmul(TF.data.transpose(), IDF)
         self.matrix = csr_matrix((TF_IDF, TF.indices, TF.indptr),
                                  shape=TF.shape)
         self.matrix = self.matrix.transpose(copy=True)

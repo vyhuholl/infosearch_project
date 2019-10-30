@@ -208,7 +208,7 @@ class Word2VecSearch(SearchEngine):
         else:
             self.matrix = np.load("word2vec_matrix.npy")
 
-    def load_tagged_data():
+    def load_tagged_data(self):
         logging.info("Loading data...")
         conn = sqlite3.connect("quora_question_pairs_rus.db")
         db = conn.cursor()

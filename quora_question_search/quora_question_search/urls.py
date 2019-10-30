@@ -15,10 +15,14 @@ Including another URLconf
 """
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.generic.base import RedirectView
+
+favicon_view = RedirectView.as_view(
+    url="http://transparent-favicon.info/favicon.ico", permanent=True)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include("search_engine.urls"))
+    path("", include("search_engine.urls")),
+    re_path(r"^favicon\.ico$", favicon_view)
 ]
-

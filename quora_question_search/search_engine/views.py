@@ -205,7 +205,7 @@ class Word2VecSearch(SearchEngine):
     def load_model(self):
         logging.info("Loading Word2Vec model...")
         return Word2VecKeyedVectors.load_word2vec_format(
-            os.fsencode(f"model_word2vec{os.sep}model.bin"), binary=True)
+            os.path.join("model_word2vec", "model.bin"), binary=True)
 
     def transform(self, text):
         lemmas_vectors = np.zeros((len(text), self.model.vector_size))
@@ -255,8 +255,8 @@ class FastTextSearch(SearchEngine):
 
     def load_model(self):
         logging.info("Loading FastText model...")
-        return KeyedVectors.load(os.fsencode(
-            f"model_fasttext{os.sep}model.model"))
+        return KeyedVectors.load(os.path.join("model_word2vec",
+                                              "model.model"))
 
     def transform(self, text):
         lemmas_vectors = np.zeros((len(text), self.model.vector_size))

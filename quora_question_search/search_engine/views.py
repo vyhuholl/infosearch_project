@@ -121,6 +121,7 @@ class TfIdfSearch(SearchEngine):
         TF_IDF = TF.data * IDF
         self.matrix = csr_matrix((TF_IDF, TF.indices, TF.indptr),
                                  shape=TF.shape)
+        self.matrix = self.matrix.transpose(copy=True)
         save_npz("tfidf_matrix.npz", self.matrix)
         logging.info("Matrix creation finished.")
 
@@ -130,6 +131,7 @@ class TfIdfSearch(SearchEngine):
     def search(self, query):
         logging.info("Searching...")
         query_vec = self.transform([query])
+        print(self.matrix.shape)
         print(query_vec.shape)
         result = np.array((query_vec * self.matrix).todense())[0]
         indices = np.argsort(result)[::-1].tolist()[:10]

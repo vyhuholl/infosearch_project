@@ -118,13 +118,14 @@ class TfIdfSearch(SearchEngine):
     def fit_transform(self):
         logging.info("Vectorizing texts...")
         TF = self.vectorizer.fit_transform(self.data)
+        print(TF.data.shape)
         print(TF.shape)
         logging.info("Computing IDFs...")
         IDF = np.array([np.log((100000 - y + 0.5) / (y + 0.5))
                         for y in TF.data])
         print(IDF.shape)
         logging.info("Building TF-IDF matrix...")
-        TF_IDF = np.matmul(TF.data, IDF)
+        TF_IDF = TF.data * IDF
         print(TF_IDF.shape)
         self.matrix = csr_matrix((TF_IDF, TF.indices, TF.indptr),
                                  shape=TF.shape)

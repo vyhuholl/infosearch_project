@@ -56,7 +56,7 @@ def build_db():
               CREATE TABLE text_corpora
               (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
               text TEXT NOT NULL,
-              text_lemmatized TEXT NOT NULL)
+              text_lemmatized TEXT NOT NULL,
               text_tagged TEXT NOT NULL;
               """)
     logging.info("Creating the database...")
@@ -70,7 +70,6 @@ def build_db():
         conn.commit()
     conn.close()
     logging.info("Database creation finished.")
-    return
 
 
 if not os.path.isfile("quora_question_pairs_rus.db"):

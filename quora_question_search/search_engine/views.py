@@ -121,7 +121,7 @@ class TfIdfSearch(SearchEngine):
         print(TF.shape)
         logging.info("Computing IDFs...")
         IDF = np.array([np.log((100000 - y + 0.5) / (y + 0.5))
-                        for y in TF.data)
+                        for y in TF.data])
         print(IDF.shape)
         logging.info("Building TF-IDF matrix...")
         TF_IDF = np.matmul(TF.data, IDF)

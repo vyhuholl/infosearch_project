@@ -138,7 +138,7 @@ class TfIdfSearch(SearchEngine):
 
     def search(self, query):
         logging.info("Searching...")
-        query_vec = np.array(self.transform([query]))
+        query_vec = self.transform([query])
         print(query_vec.shape)
         result = np.array((query_vec * self.matrix).todense())[0]
         indices = np.argsort(result)[::-1].tolist()[:10]

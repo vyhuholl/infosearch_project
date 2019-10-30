@@ -14,8 +14,8 @@ import sqlite3
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+from django.db import connection
 from django.shortcuts import render
-from warnings import filterwarnings
 from pymorphy2 import MorphAnalyzer
 from pymorphy2.tokenizers import simple_word_tokenize
 from scipy.sparse import csr_matrix, save_npz, load_npz
@@ -63,7 +63,6 @@ def build_db():
     for text in tqdm(corpus):
         db.execute("""
                    INSERT INTO text_corpora
-                   (text, text_lemmatized, text_tagged)
                    VALUES (?, ?, ?);
                    """, (text, " ".join(lemmatize(text)),
                          " ".join(tag(text))))

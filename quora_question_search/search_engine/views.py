@@ -221,7 +221,7 @@ class Word2VecSearch(SearchEngine):
         logging.info("Building Word2Vec matrix...")
         self.matrix = np.zeros((100000, self.model.vector_size))
         for i in tqdm(range(100000)):
-            self.matrix[i] = self.transform(self.data[i])
+            self.matrix[i] = self.transform(self.data[i].split(" "))
         np.save("word2vec_matrix.npy", self.matrix)
         logging.info("Matrix creation finished.")
 
@@ -272,7 +272,7 @@ class FastTextSearch(SearchEngine):
         logging.info("Building FastText matrix...")
         self.matrix = np.zeros((100000, self.model.vector_size))
         for i in tqdm(range(100000)):
-            self.matrix[i] = self.transform(self.data[i])
+            self.matrix[i] = self.transform(self.data[i].split(" "))
         np.save("fasttext_matrix.npy", self.matrix)
         logging.info("Matrix creation finished.")
 

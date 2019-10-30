@@ -38,8 +38,8 @@ def lemmatize(text):
             for word in simple_word_tokenize(text)]
 
 
-def tag(text):
-    return [f"{m.parse(word)[0].normal_form}_{m.parse(word)[0].POS}"
+def pos_tag(text):
+    return [f"{m.parse(word)[0].normal_form}_{m.parse(word)[0].tag.POS}"
             for word in simple_word_tokenize(text)]
 
 
@@ -65,7 +65,7 @@ def build_db():
                    INSERT INTO text_corpora
                    VALUES (?, ?, ?);
                    """, (text, " ".join(lemmatize(text)),
-                         " ".join(tag(text))))
+                         " ".join(pos_tag(text))))
         conn.commit()
     conn.close()
     logging.info("Database creation finished.")
@@ -240,7 +240,7 @@ class Word2VecSearch(SearchEngine):
 
     def search(self, query):
         logging.info("Searching...")
-        query_vec = np.transpose(self.transform(tag(query)))
+        query_vec = np.transpose(self.transform(pos_tag(query)))
         result = np.matmul(self.matrix, query_vec)
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []

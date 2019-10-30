@@ -63,6 +63,7 @@ def build_db():
     for text in tqdm(corpus):
         db.execute("""
                    INSERT INTO text_corpora
+                   (text, text_lemmatized, text_tagged)
                    VALUES (?, ?, ?);
                    """, (text, " ".join(lemmatize(text)),
                          " ".join(pos_tag(text))))

@@ -38,6 +38,11 @@ def lemmatize(text):
             for word in simple_word_tokenize(text)]
 
 
+def tag(text):
+    return [f"{m.parse(word)[0].normal_form}_{m.parse(word)[0].POS}"
+            for word in simple_word_tokenize(text)]
+
+
 def build_db():
     logging.info("Reading data...")
     with open("quora_question_pairs_rus.csv", "r") as file:
@@ -51,7 +56,8 @@ def build_db():
               CREATE TABLE text_corpora
               (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
               text TEXT NOT NULL,
-              text_lemmatized TEXT NOT NULL);
+              text_lemmatized TEXT NOT NULL)
+              text_tagged TEXT NOT NULL;
               """)
     logging.info("Creating the database...")
     for text in tqdm(corpus):
@@ -59,7 +65,8 @@ def build_db():
                    INSERT INTO text_corpora
                    (text, text_lemmatized)
                    VALUES (?, ?);
-                   """, (text, " ".join(lemmatize(text))))
+                   """, (text, " ".join(lemmatize(text),
+                         " ".join(tag(text))))
         conn.commit()
     conn.close()
     logging.info("Database creation finished.")
@@ -194,13 +201,25 @@ class BM25Search(SearchEngine):  # b=0, k=2
 class Word2VecSearch(SearchEngine):
     def __init__(self):
         super(Word2VecSearch, self).__init__()
-        self.data = self.load_data()
+        self.data = self.load_tagged_data()
         self.model = self.load_model()
         logging.info("Model successfully loaded!")
         if not os.path.isfile("word2vec_matrix.npy"):
             self.fit_transform()
         else:
             self.matrix = np.load("word2vec_matrix.npy")
+
+    def load_tagged_data():
+        logging.info("Loading data...")
+        conn = sqlite3.connect("quora_question_pairs_rus.db")
+        db = conn.cursor()
+        db.execute("""
+                   SELECT text_tagged FROM text_corpora LIMIT 100000
+                   """)
+        data = db.fetchall()
+        conn.close()
+        logging.info("Data loaded!")
+        return np.array([text[0] for text in data])
 
     def load_model(self):
         logging.info("Loading Word2Vec model...")
@@ -227,7 +246,7 @@ class Word2VecSearch(SearchEngine):
 
     def search(self, query):
         logging.info("Searching...")
-        query_vec = np.transpose(self.transform(lemmatize(query)))
+        query_vec = np.transpose(self.transform(tag(query)))
         result = np.matmul(self.matrix, query_vec)
         indices = np.argsort(result)[::-1].tolist()[:10]
         best_match = []

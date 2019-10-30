@@ -57,14 +57,14 @@ def build_db():
               (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
               text TEXT NOT NULL,
               text_lemmatized TEXT NOT NULL,
-              text_tagged TEXT NOT NULL;
+              text_tagged TEXT NOT NULL);
               """)
     logging.info("Creating the database...")
     for text in tqdm(corpus):
         db.execute("""
                    INSERT INTO text_corpora
-                   (text, text_lemmatized)
-                   VALUES (?, ?);
+                   (text, text_lemmatized, text_tagged)
+                   VALUES (?, ?, ?);
                    """, (text, " ".join(lemmatize(text),
                          " ".join(tag(text)))))
         conn.commit()

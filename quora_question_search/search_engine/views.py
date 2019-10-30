@@ -66,7 +66,7 @@ def build_db():
                    (text, text_lemmatized)
                    VALUES (?, ?);
                    """, (text, " ".join(lemmatize(text),
-                         " ".join(tag(text))))
+                         " ".join(tag(text)))))
         conn.commit()
     conn.close()
     logging.info("Database creation finished.")

@@ -15,10 +15,10 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 from django.shortcuts import render
-from scipy.sparse import csr_matrix
 from warnings import filterwarnings
 from pymorphy2 import MorphAnalyzer
 from pymorphy2.tokenizers import simple_word_tokenize
+from scipy.sparse import csr_matrix, save_npz, load_npz
 from sklearn.feature_extraction.text import CountVectorizer
 from .elmo_helpers import load_elmo_embeddings, get_elmo_vectors
 from smart_open import open
@@ -87,10 +87,6 @@ class SearchEngine():
         logging.info("Data loaded!")
         return np.array([text[0] for text in data])
 
-    @staticmethod
-    def load_matrix(filename):
-        return np.load(filename, allow_pickle=True)
-
     def load_model(self):
         pass
 
@@ -109,28 +105,23 @@ class TfIdfSearch(SearchEngine):
         super(TfIdfSearch, self).__init__()
         self.data = self.load_data()
         self.vectorizer = CountVectorizer(tokenizer=lemmatize)
-        if not os.path.isfile("tfidf_matrix.npy"):
+        if not os.path.isfile("tfidf_matrix.npz"):
             self.fit_transform()
         else:
             self.vectorizer.fit(self.data)
-            self.matrix = self.load_matrix("tfidf_matrix.npy")
+            self.matrix = load_npz("tfidf_matrix.npz")
 
     def fit_transform(self):
         logging.info("Vectorizing texts...")
         TF = self.vectorizer.fit_transform(self.data)
-        print(TF.data.shape)
-        print(TF.shape)
         logging.info("Computing IDFs...")
         IDF = np.array([np.log((100000 - y + 0.5) / (y + 0.5))
                         for y in TF.data])
-        print(IDF.shape)
         logging.info("Building TF-IDF matrix...")
         TF_IDF = TF.data * IDF
-        print(TF_IDF.shape)
         self.matrix = csr_matrix((TF_IDF, TF.indices, TF.indptr),
                                  shape=TF.shape)
-        print(self.matrix.shape)
-        np.save("tfidf_matrix.npy", self.matrix)
+        save_npz("tfidf_matrix.npz", self.matrix)
         logging.info("Matrix creation finished.")
 
     def transform(self, texts):
@@ -159,11 +150,11 @@ class BM25Search(SearchEngine):  # b=0, k=2
         super(BM25Search, self).__init__()
         self.data = self.load_data()
         self.vectorizer = CountVectorizer(tokenizer=lemmatize)
-        if not os.path.isfile("bm25_matrix.npy"):
+        if not os.path.isfile("bm25_matrix.npz"):
             self.fit_transform()
         else:
             self.vectorizer.fit(self.data)
-            self.matrix = self.load_matrix("bm25_matrix.npy")
+            self.matrix = load_npz("bm25_matrix.npz")
 
     def fit_transform(self):
         logging.info("Vectorizing texts...")
@@ -177,7 +168,7 @@ class BM25Search(SearchEngine):  # b=0, k=2
         self.matrix = csr_matrix((BM25, TF.indices, TF.indptr),
                                  shape=TF.shape)
         self.matrix = self.matrix.transpose(copy=True)
-        np.save("bm25_matrix.npy", self.matrix)
+        save_npz("bm25_matrix.npz", self.matrix)
         logging.info("Matrix creation finished.")
 
     def transform(self, texts):
@@ -209,7 +200,7 @@ class Word2VecSearch(SearchEngine):
         if not os.path.isfile("word2vec_matrix.npy"):
             self.fit_transform()
         else:
-            self.matrix = self.load_matrix("word2vec_matrix.npy")
+            self.matrix = np.load("word2vec_matrix.npy")
 
     def load_model(self):
         logging.info("Loading Word2Vec model...")
@@ -260,7 +251,7 @@ class FastTextSearch(SearchEngine):
         if not os.path.isfile("fasttext_matrix.npy"):
             self.fit_transform()
         else:
-            self.matrix = self.load_matrix("fasttext_matrix.npy")
+            self.matrix = np.load("fasttext_matrix.npy")
 
     def load_model(self):
         logging.info("Loading FastText model...")
@@ -311,7 +302,7 @@ class ELMOSearch(SearchEngine):
         if not os.path.isfile("elmo_matrix.npy"):
             self.fit_transform()
         else:
-            self.matrix = self.load_matrix("elmo_matrix.npy")
+            self.matrix = np.load("elmo_matrix.npy")
 
     def load_model(self):
         logging.info("Loading ELMO model...")
@@ -367,7 +358,7 @@ class RuBERTSearch(SearchEngine):
         if not os.path.isfile("bert_matrix.npy"):
             self.fit_transform()
         else:
-            self.matrix = self.load_matrix("bert_matrix.npy")
+            self.matrix = np.load("bert_matrix.npy")
 
     def load_model(self):
         logging.info("Loading RuBERT model...")

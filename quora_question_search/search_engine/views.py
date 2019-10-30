@@ -65,8 +65,8 @@ def build_db():
                    INSERT INTO text_corpora
                    (text, text_lemmatized, text_tagged)
                    VALUES (?, ?, ?);
-                   """, (text, " ".join(lemmatize(text),
-                         " ".join(tag(text)))))
+                   """, (text, " ".join(lemmatize(text)),
+                         " ".join(tag(text))))
         conn.commit()
     conn.close()
     logging.info("Database creation finished.")

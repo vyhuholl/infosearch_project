@@ -9,6 +9,9 @@ tf.get_logger().setLevel(logging.ERROR)
 tf.autograph.set_verbosity(3)
 tf.disable_v2_behavior()
 
+import keras.backend.tensorflow_backend as tb
+tb._SYMBOLIC_SCOPE.value = True
+
 import sys
 import pickle
 import sqlite3

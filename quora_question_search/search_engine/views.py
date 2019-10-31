@@ -10,6 +10,7 @@ tf.autograph.set_verbosity(3)
 tf.disable_v2_behavior()
 
 import sys
+import pickle
 import sqlite3
 import pandas as pd
 import numpy as np
@@ -312,10 +313,10 @@ class ELMOSearch(SearchEngine):
         self.data = self.load_data()
         self.batcher, self.ids, self.input = self.load_model()
         logging.info("Model successfully loaded!")
-        if not os.path.isfile("elmo_matrix.npy"):
-            self.fit_transform()
-        else:
-            self.matrix = np.load("elmo_matrix.npy")
+        logging.info("Loading ELMO matrix...")
+        with open(os.path.join("vec.pkl"), "rb") as file:
+            self.matrix = pickle.load(file)
+        logging.info("Matrix successfully loaded!")
 
     def load_model(self):
         logging.info("Loading ELMO model...")
@@ -331,20 +332,6 @@ class ELMOSearch(SearchEngine):
                                                              self.input
                                                              ))).flatten()
         return text_vec
-
-    def fit_transform(self):
-        logging.info("Building ELMO matrix...")
-        self.matrix = np.zeros((0, 1024))
-        with tf.Session() as sess:
-            sess.run(tf.initializers.global_variables())
-            for i in tqdm(range(0, 100000, 75)):
-                self.matrix = np.vstack((self.matrix,
-                                         np.mean(get_elmo_vectors(
-                                             sess, self.data[i:i + 75],
-                                             self.batcher, self.ids,
-                                             self.input), axis=1)))
-        np.save("elmo_matrix.npy", self.matrix)
-        logging.info("Matrix creation finished.")
 
     def search(self, query):
         logging.info("Searching...")

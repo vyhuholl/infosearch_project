@@ -330,7 +330,8 @@ class ELMOSearch(SearchEngine):
                                                              self.batcher,
                                                              self.ids,
                                                              self.input
-                                                             ))).flatten()
+                                                             ), axis=1)
+                                    ).flatten()
         return text_vec
 
     def search(self, query):

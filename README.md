@@ -6,7 +6,6 @@ Source for the code to work with ELMO word embeddings (file *elmo_helpers.py*): 
 Sources for pre-trained **Word2Vec**, **Fasttext** and **ELMO** language models: https://rusvectores.org/en/models/ <br>
 Source for the pre-trained **BERT** model: http://docs.deeppavlov.ai/en/master/features/models/bert.html <br>
 Search models used: <br>
-<br>
 * **TF-IDF**
 * **BM25**
 * **Word2Vec**

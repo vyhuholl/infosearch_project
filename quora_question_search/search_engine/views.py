@@ -1,5 +1,6 @@
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TF_KERAS"] = 1
 from warnings import filterwarnings
 filterwarnings("ignore")
 import logging
@@ -23,8 +24,6 @@ from scipy.sparse import csr_matrix, save_npz, load_npz
 from sklearn.feature_extraction.text import CountVectorizer
 from .elmo_helpers import load_elmo_embeddings, get_elmo_vectors
 from smart_open import open
-from keras.models import Model
-from keras.backend import clear_session
 from keras_bert.layers import MaskedGlobalMaxPool1D
 from keras_bert import load_trained_model_from_checkpoint
 from keras_bert import Tokenizer, load_vocabulary, get_checkpoint_paths
@@ -362,7 +361,7 @@ class RuBERTSearch(SearchEngine):
             self.matrix = np.load("bert_matrix.npy")
 
     def load_model(self):
-        clear_session()
+        tf.keras.backend.clear_session()
         logging.info("Loading RuBERT model...")
         paths = get_checkpoint_paths("model_bert")
         inputs = load_trained_model_from_checkpoint(
@@ -370,7 +369,7 @@ class RuBERTSearch(SearchEngine):
             checkpoint_file=paths.checkpoint, seq_len=50)
         outputs = MaskedGlobalMaxPool1D(name="Pooling")(inputs.output)
         vocab = load_vocabulary(paths.vocab)
-        return Model(inputs=inputs.inputs,
+        return tf.keras.Model(inputs=inputs.inputs,
                      outputs=outputs), vocab, Tokenizer(vocab)
 
     def fit_transform(self):

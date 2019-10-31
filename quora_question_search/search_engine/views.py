@@ -269,7 +269,7 @@ class FastTextSearch(SearchEngine):
 
     def load_model(self):
         logging.info("Loading FastText model...")
-        return KeyedVectors.load(os.path.join("model_word2vec",
+        return KeyedVectors.load(os.path.join("model_fasttext",
                                               "model.model"))
 
     def transform(self, text):

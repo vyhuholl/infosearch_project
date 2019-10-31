@@ -7,7 +7,6 @@ quora_question_search/tfidf_matrix.npz
 quora_question_search/bm25_matrix.npz
 quora_question_search/word2vec_matrix.npy
 quora_question_search/fasttext_matrix.npy
-quora_question_search/elmo_matrix.npy
 quora_question_search/bert_matrix.npy
 quora_question_search/logs.log
 

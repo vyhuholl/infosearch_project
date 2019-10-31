@@ -324,7 +324,7 @@ class ELMOSearch(SearchEngine):
 
     def transform(self, text):
         with tf.Session() as sess:
-            sess.run(tf.global_variables_initializer())
+            sess.run(tf.initializers.global_variables())
             text_vec = np.transpose(np.mean(get_elmo_vectors(sess, [text],
                                                              self.batcher,
                                                              self.ids,
@@ -336,7 +336,7 @@ class ELMOSearch(SearchEngine):
         logging.info("Building ELMO matrix...")
         self.matrix = np.zeros((0, 1024))
         with tf.Session() as sess:
-            sess.run(tf.global_variables_initializer)
+            sess.run(tf.initializers.global_variables())
             for i in tqdm(range(0, 100000, 75)):
                 self.matrix = np.vstack((self.matrix,
                                          np.mean(get_elmo_vectors(

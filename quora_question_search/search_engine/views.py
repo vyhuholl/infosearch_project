@@ -314,7 +314,7 @@ class ELMOSearch(SearchEngine):
         self.batcher, self.ids, self.input = self.load_model()
         logging.info("Model successfully loaded!")
         logging.info("Loading ELMO matrix...")
-        with open(os.path.join("vec.pkl"), "rb") as file:
+        with open(os.path.join("model_elmo", "vec.pkl"), "rb") as file:
             self.matrix = pickle.load(file)
         logging.info("Matrix successfully loaded!")
 

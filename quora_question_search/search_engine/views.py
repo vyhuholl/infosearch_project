@@ -370,7 +370,7 @@ class RuBERTSearch(SearchEngine):
         outputs = MaskedGlobalMaxPool1D(name="Pooling")(inputs.output)
         vocab = load_vocabulary(paths.vocab)
         return tf.keras.Model(inputs=inputs.inputs,
-                     outputs=outputs), vocab, Tokenizer(vocab)
+                              outputs=outputs), vocab, Tokenizer(vocab)
 
     def fit_transform(self):
         logging.info("Building RuBERT matrix...")

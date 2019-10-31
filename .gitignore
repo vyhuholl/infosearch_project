@@ -24,6 +24,7 @@ quora_question_search/model_fasttext/model.model.vectors.npy
 quora_question_search/model_elmo/options.json
 quora_question_search/model_elmo/model.hdf5
 quora_question_search/model_elmo/vocab.txt.gz
+quora_question_search/model_elmo/vec.pkl
 
 quora_question_search/model_bert/bert_config.json
 quora_question_search/model_bert/bert_model.ckpt.data-00000-of-00001
